@@ -1,7 +1,15 @@
 ###  PatchTinkerV2
 对[android_patchTinker](https://github.com/ming123aaa/android_patchTinker)的一个优化版本，减少补丁的大小和补丁加载的时间。
-使用方法和之前完全一致
+虽然使用代码一致，但是不兼容老版本的补丁包,需要用新的补丁工具打包。
 
+### 补丁包生成
+使用阿里的SophixPatchTool打包,需要取消检查初始化选项，需要取消检查初始化选项，需要取消检查初始化选项。
+补丁包生成需要使用打补丁工具SophixPatchTool，如还未下载打补丁工具，请前往下载Android打包工具。
+打包工具下载地址如下：
+[Mac版本打包工具下载](https://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/SophixPatchTool_macos.zip?spm=a2c4g.11186623.0.0.58d32cd3lkmCPs&file=SophixPatchTool_macos.zip)
+[Windows版本打包工具下载](https://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/SophixPatchTool_windows.zip?spm=a2c4g.11186623.0.0.58d32cd3lkmCPs&file=SophixPatchTool_windows.zip)
+[Linux版本打包工具地址](https://ams-hotfix-repo.oss-cn-shanghai.aliyuncs.com/SophixPatchTool_linux.zip?spm=a2c4g.11186623.0.0.58d32cd3lkmCPs&file=SophixPatchTool_linux.zip)
+如果工具打包很久没有完成的话，可能是apk的问题，可以尝试把apk解压然后再压缩成zip包。
 
 
 ### 注意
@@ -10,8 +18,9 @@
 2.AndroidManifest.xml 无法热更。
 3.热更新框架本身无法被热更。
 4.热更后需要重启应用才能生效。
+5.无法修改已存在的assets的资源(若要修改，只需修改一下文件名)
 
-### 引用
+### 使用
 
 ```groovy
 allprojects {
@@ -144,7 +153,7 @@ PatchTinker.getInstance().loadPatchApk(StartActivity.this, patch_path);
 
 进程白名单：
 <meta-data
-android:name="PatchTinker_WhiteProcess"/> 1.0.5以后的版本才生效 进程白名单,白名单的进程不会自动执行热更 (多个进程用","隔开 以":"代表子进程 )
+android:name="PatchTinker_WhiteProcess"/>  进程白名单,白名单的进程不会自动执行热更 (多个进程用","隔开 以":"代表子进程 )
 
 ```xml
 
@@ -175,16 +184,19 @@ android sdk 24及以上版本支持
 ```
 
 
-### 补丁包生成
 
-使用阿里的SophixPatchTool打包,需要取消检查初始化
 
 ### 关于混淆
 
 混淆配置
 ```
+#防止被混淆
 -keep class com.ohuang.patchtinker.**{*;}
+#防止inline
+-dontoptimize
 ```
+还有自己的ApplicationLike也别忘了混淆
+
 
 每次打完包记得保存 mapping.txt 文件用于下次打补丁包配置
 
@@ -193,5 +205,73 @@ android sdk 24及以上版本支持
 ```
 #改成你的mapping.txt路径
 -applymapping "D:\Users\ali213\AndroidStudioProjects\MyApplication2\app\mapping.txt" 
+```
 
+使用proguad混淆
+
+如果开启了代码混淆，需要关闭R8，使用proguard进行混淆。不然可能导致生成补丁异常。根据使用的Android Gradle Plugin版本，具体操作如下：
+
+Android Gradle Plugin低于7.0
+
+在项目根目录的gradle.properties中添加如下配置。
+
+```
+android.enableR8=false
+```
+Android Gradle Plugin 7.0以上
+
+在项目根目录的build.gradle中添加如下ProGuard Gradle Plugin配置。
+
+```
+buildscript {
+repositories {
+// For the Android Gradle plugin.
+google()
+// For the ProGuard Gradle Plugin.
+mavenCentral()
+}
+dependencies {
+// The Android Gradle plugin.
+classpath("com.android.tools.build:gradle:x.y.z")
+// The ProGuard Gradle plugin.
+classpath("com.guardsquare:proguard-gradle:7.1.+")
+}
+}
+```
+在app目录的build.gradle中应用ProGuard Gradle Plugin。
+
+```
+apply plugin: 'com.guardsquare.proguard'
+```
+然后，关闭R8混淆。
+
+```
+android {
+buildTypes {
+release {
+// 关闭 R8.
+minifyEnabled false
+}
+}
+}
+```
+最后，配置ProGuard混淆。
+
+```
+android {
+...
+}
+
+proguard {
+configurations {
+release {
+defaultConfiguration 'proguard-android.txt'
+configuration 'proguard-rules.pro'
+}
+debug {
+defaultConfiguration 'proguard-android-debug.txt'
+configuration 'proguard-rules.pro'
+}
+}
+}
 ```

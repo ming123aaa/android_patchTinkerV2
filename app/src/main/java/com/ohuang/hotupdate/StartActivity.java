@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -31,7 +32,8 @@ public class StartActivity extends Activity {
 
 
 
-        setContentView(getResources().getIdentifier("activity_start", "layout", this.getPackageName()));
+        setContentView(R.layout.activity_start);
+
         findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -13,29 +13,37 @@ import java.io.File;
 public class ResApk {
     public static final String TAG = "ResApk";
 
-    public static void toDexResApk(Context context, String patchApk, String dexApk, String tempPath) {
+    public static void toDexResApk(Context context, String patchApk, String dexApk, String tempPath, boolean isProtected) {
         long time = System.currentTimeMillis();
         String baseApk = context.getApplicationInfo().sourceDir;
-        mergeDexApk(baseApk, patchApk, dexApk, tempPath);
-        Log.d(TAG, "toDexResApk: baseApkPath="+baseApk+"  patchPath="+patchApk);
-        Log.d(TAG, "toDexResApk: 耗时"+(System.currentTimeMillis()-time)+"ms");
+        if (isProtected) {
+            mergeDexProtectedApk(patchApk, dexApk, tempPath);
+        } else {
+            mergeDexApk(baseApk, patchApk, dexApk, tempPath);
+        }
+        Log.d(TAG, "toDexResApk: baseApkPath=" + baseApk + "  patchPath=" + patchApk);
+        Log.d(TAG, "toDexResApk: 耗时" + (System.currentTimeMillis() - time) + "ms");
 
+    }
+
+    private static void mergeDexProtectedApk(String patchPath, String outDexPath, String tmpPath) {
+        CopyFileUtil.copyFile(patchPath,outDexPath);
     }
 
     private static void mergeDexApk(String apkPath, String patchPath, String outDexPath, String tmpPath) {
         ZipUtil.upZipByZipIntercept(apkPath, tmpPath + "/baseDex", new ZipUtil.ZipIntercept() {
             @Override
             public boolean isCopy(String fileName) {
-                if (fileName.startsWith("lib/") ) {
-                    return false;
+                if (fileName.startsWith("classes") && fileName.endsWith(".dex")) { //只解压classes.dex
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
         ZipUtil.upZipByZipIntercept(patchPath, tmpPath + "/patchDex", new ZipUtil.ZipIntercept() {
             @Override
             public boolean isCopy(String fileName) {
-                if (fileName.startsWith("lib/") ) {
+                if (fileName.startsWith("lib/")) {  //lib文件不处理
                     return false;
                 }
                 return true;
@@ -56,12 +64,11 @@ public class ResApk {
                 classesNum[0]++;
             }
         });
-        CopyFileUtil.renamePathAllFile(tmpPath+"/baseDex"
-                , tmpPath + "/patchDex", "", false);
+
         ZipUtil.toZip(outDexPath, tmpPath + "/patchDex", true, new ZipUtil.ZipCompressIntercept() {
             @Override
             public boolean canCompress(String name) {
-                if (name.startsWith("res/raw/") || name.startsWith("assets/")) {
+                if (name.startsWith("res/raw/") || name.startsWith("assets/")) { //不需要压缩的文件
                     return false;
                 }
                 return true;
@@ -105,30 +112,5 @@ public class ResApk {
         void call(File file);
     }
 
-//     static void toResApk(Context context, String apkPath) {
-//        long l = System.currentTimeMillis();
-//        //解压补丁包
-//        ZipUtil.upZipByDir(apkPath, context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/resApk/res", "res/");
-//        ZipUtil.upZipByDir(apkPath, context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/resApk/assets", "assets/");
-//        String resources = context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/resApk/resources.arsc";
-//        FileUtils.createParentDir(resources);
-//        ZipUtil.upZipByName(apkPath, resources, "resources.arsc");
-//        //解压原包
-//        String baseApk = context.getApplicationInfo().sourceDir;
-//        ZipUtil.upZipByDir(baseApk, context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/baseApk/res", "res/");
-//        ZipUtil.upZipByDir(baseApk, context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/baseApk/assets", "assets/");
-//        String resources2 = context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/baseApk/resources.arsc";
-//        FileUtils.createParentDir(resources2);
-//        ZipUtil.upZipByName(baseApk, resources2, "resources.arsc");
-//        Log.d(TAG, "toResApk: 资源解压耗时"+(System.currentTimeMillis()-l)+"ms");
-//        l = System.currentTimeMillis();
-//        //资源文件复制
-//        CopyFileUtil.copyPathAllFile(
-//                context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/resApk", context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/baseApk", "", true);
-//        Log.d(TAG, "toResApk: 资源复制耗时"+(System.currentTimeMillis()-l)+"ms");
-//        l = System.currentTimeMillis();
-//        //转res.apk
-//        ZipUtil.toZip(context.getFilesDir().getAbsolutePath() + PatchUtil.resApk, context.getFilesDir().getAbsolutePath() + PatchUtil.temp + "/baseApk", true);
-//        Log.d(TAG, "toResApk: zip压缩耗时:"+(System.currentTimeMillis()-l)+"ms");
-//    }
+
 }

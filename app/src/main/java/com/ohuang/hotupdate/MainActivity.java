@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.ohuang.hotupdate.util.AssetUtil;
 import com.ohuang.patchtinker.PatchTinker;
 import com.ohuang.patchtinker.PatchUtil;
 import com.ohuang.patchtinker.util.AndroidXmlUtil;
@@ -34,7 +35,8 @@ public static final String TAG="MainActivity";
         findViewById(R.id.a121).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "狗别叫",Toast.LENGTH_LONG).show();
+
+                Toast.makeText(MainActivity.this, AssetUtil.readText(MainActivity.this, "bbbb.txt"), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -45,7 +47,7 @@ public static final String TAG="MainActivity";
             public void onClick(View v) {
                 try {
                     startActivity(new Intent(MainActivity.this,Class.forName("com.ohuang.hotupdate.TestActivity")));
-                    Toast.makeText(MainActivity.this, "gogogo",Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "你干嘛",Toast.LENGTH_LONG).show();
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }

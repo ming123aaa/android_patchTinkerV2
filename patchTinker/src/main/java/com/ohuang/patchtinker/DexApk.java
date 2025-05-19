@@ -3,6 +3,7 @@ package com.ohuang.patchtinker;
 import android.content.Context;
 import android.util.Log;
 
+import com.ohuang.patchtinker.util.CopyFileUtil;
 import com.ohuang.patchtinker.util.ZipUtil;
 
 import java.io.File;
@@ -10,10 +11,14 @@ import java.io.File;
 public class DexApk {
     public static final String TAG = "DexApk";
 
-    public static void toDexApk(Context context, String patchApk, String dexApk, String tempPath) {
+    public static void toDexApk(Context context, String patchApk, String dexApk, String tempPath, boolean isProtected) {
         long time = System.currentTimeMillis();
         String baseApk = context.getApplicationInfo().sourceDir;
-        mergeDexApk(baseApk, patchApk, dexApk, tempPath);
+        if (isProtected){ //加固过的包直接复制
+            CopyFileUtil.copyFile(patchApk,dexApk);
+        }else {
+            mergeDexApk(baseApk, patchApk, dexApk, tempPath);
+        }
         Log.d(TAG, "toDexApk: 耗时"+(System.currentTimeMillis()-time)+"ms");
     }
 

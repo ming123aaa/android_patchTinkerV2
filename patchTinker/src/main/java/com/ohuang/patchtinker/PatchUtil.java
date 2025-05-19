@@ -163,10 +163,13 @@ public class PatchUtil {
 
         if (f.exists()) {
             patch = new Patch();
-            TinkerPatchUtil.loadDexPatch(base, dex_apk, root, ProtectModeUtil.isProtect(base));  //dex热更
-            libUpdate(base, root);
+            boolean isResSuccess = true;
             if (resEnable) {
-                ResPatch.getResPatch(base, base.getFilesDir().getAbsolutePath() + dexPath);  //资源热更新
+                isResSuccess=ResPatch.getResPatch(base, base.getFilesDir().getAbsolutePath() + dexPath);  //资源热更新
+            }
+            if (isResSuccess) {
+                TinkerPatchUtil.loadDexPatch(base, dex_apk, root, ProtectModeUtil.isProtect(base));  //dex热更
+                libUpdate(base, root);
             }
         }
     }
@@ -179,11 +182,15 @@ public class PatchUtil {
         String root = base.getFilesDir().getAbsolutePath() + rootPath2;//lib和cache目录必须在/data/data/包名 的目录下！
         if (f.exists()) {
             patch = new Patch();
-            TinkerPatchUtil.loadDexPatch(base, dex_apk, root, ProtectModeUtil.isProtect(base)); //dex代码热更新
-            libUpdate(base, root);//lib热更
+            boolean isResSuccess = true;
             if (resEnable) {
-                ResPatch.getResPatch(base, base.getFilesDir().getAbsolutePath() + dexPath2);  //资源热更新
+                isResSuccess=ResPatch.getResPatch(base, base.getFilesDir().getAbsolutePath() + dexPath2);  //资源热更新
             }
+            if (isResSuccess) {
+                TinkerPatchUtil.loadDexPatch(base, dex_apk, root, ProtectModeUtil.isProtect(base)); //dex代码热更新
+                libUpdate(base, root);//lib热更
+            }
+
         }
     }
 
@@ -361,9 +368,9 @@ public class PatchUtil {
         }
         deleteTempFile(context);
         if (resIsUpdate) {
-            ResApk.toDexResApk(context, path, outApkFile.getAbsolutePath(), context.getFilesDir().getAbsolutePath() + temp);
+            ResApk.toDexResApk(context, path, outApkFile.getAbsolutePath(), context.getFilesDir().getAbsolutePath() + temp,ProtectModeUtil.isProtect(context));
         } else {
-            DexApk.toDexApk(context, path, outApkFile.getAbsolutePath(), context.getFilesDir().getAbsolutePath() + temp);
+            DexApk.toDexApk(context, path, outApkFile.getAbsolutePath(), context.getFilesDir().getAbsolutePath() + temp,ProtectModeUtil.isProtect(context));
         }
 
         String libPath = absoluteRootPath + File.separator + "lib/";

@@ -2,5 +2,6 @@
     <string name="app_name">HotUpdate</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="toastMsg">大象你的鼻子为什么这么长</string>
     <string name="noBug">没有bug</string>
 </resources>
