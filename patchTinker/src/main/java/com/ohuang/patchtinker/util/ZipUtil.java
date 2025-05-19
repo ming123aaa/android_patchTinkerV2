@@ -65,8 +65,18 @@ public class ZipUtil {
     }
 
 
-
     public static void upZipByZipIntercept(String zipFilePath, String outDirPath, ZipIntercept zipIntercept) {
+        upZipByZipIntercept(zipFilePath, outDirPath,false, zipIntercept);
+    }
+
+    /**
+     *
+     * @param zipFilePath 压缩文件
+     * @param outDirPath  输出目录
+     * @param isMkdir 是否要创建空的文件夹
+     * @param zipIntercept
+     */
+    public static void upZipByZipIntercept(String zipFilePath, String outDirPath,boolean isMkdir, ZipIntercept zipIntercept) {
         boolean b = outDirPath.endsWith("/") || outDirPath.endsWith("\\");
         if (!b) {
             outDirPath = outDirPath + "/";
@@ -83,18 +93,6 @@ public class ZipUtil {
             ZipEntry entry;
             ZipFile zipfile = new ZipFile(zipFilePath);
 
-            Enumeration dir = zipfile.entries();
-            while (dir.hasMoreElements()) {
-                entry = (ZipEntry) dir.nextElement();
-
-                if (entry.isDirectory()) {
-                    name = entry.getName();
-                    name = name.substring(0, name.length() - 1);
-                    File fileObject = new File(outDirPath + name);
-                    fileObject.mkdir();
-                }
-            }
-
             Enumeration e = zipfile.entries();
             while (e.hasMoreElements()) {
                 entry = (ZipEntry) e.nextElement();
@@ -102,7 +100,12 @@ public class ZipUtil {
                     continue;
                 }
                 if (entry.isDirectory()) {
-                    continue;
+                    if (isMkdir){
+                        name = entry.getName();
+                        name = name.substring(0, name.length() - 1);
+                        File fileObject = new File(outDirPath + name);
+                        fileObject.mkdir();
+                    }
                 } else {
                     is = new BufferedInputStream(zipfile.getInputStream(entry));
                     int count;
@@ -143,23 +146,15 @@ public class ZipUtil {
             ZipEntry entry;
             ZipFile zipfile = new ZipFile(zipFilePath);
 
-            Enumeration dir = zipfile.entries();
-            while (dir.hasMoreElements()) {
-                entry = (ZipEntry) dir.nextElement();
-
-                if (entry.isDirectory()) {
-                    name = entry.getName();
-                    name = name.substring(0, name.length() - 1);
-                    File fileObject = new File(outDirPath + name);
-                    fileObject.mkdir();
-                }
-            }
 
             Enumeration e = zipfile.entries();
             while (e.hasMoreElements()) {
                 entry = (ZipEntry) e.nextElement();
                 if (entry.isDirectory()) {
-                    continue;
+                    name = entry.getName();
+                    name = name.substring(0, name.length() - 1);
+                    File fileObject = new File(outDirPath + name);
+                    fileObject.mkdir();
                 } else {
                     is = new BufferedInputStream(zipfile.getInputStream(entry));
                     int count;
@@ -306,7 +301,7 @@ public class ZipUtil {
         if (sourceFile.isFile()) {
 
             ZipEntry zipEntry = new ZipEntry(name);
-            if (!zipCompressIntercept.canCompress(name)){
+            if (!zipCompressIntercept.canCompress(name)){ //处理不压缩文件
                 zipEntry.setMethod(ZipEntry.STORED);
                 zipEntry.setCompressedSize(sourceFile.length());
                 zipEntry.setSize(sourceFile.length());

@@ -47,7 +47,7 @@ public static final String TAG="MainActivity";
             public void onClick(View v) {
                 try {
                     startActivity(new Intent(MainActivity.this,Class.forName("com.ohuang.hotupdate.TestActivity")));
-                    Toast.makeText(MainActivity.this, "你干嘛",Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "撸啊撸",Toast.LENGTH_LONG).show();
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }

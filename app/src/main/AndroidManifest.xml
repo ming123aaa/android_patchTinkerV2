@@ -32,7 +32,7 @@
         <meta-data
             android:name="Application_Name"
             android:value="com.ohuang.hotupdate.TestApp" />
-        <meta-data android:name="PatchTinker_isProtect" android:value="true" />
+        <meta-data android:name="PatchTinker_isProtect" android:value="false" />
 
         <activity
             android:name=".MainActivity"

@@ -18,11 +18,11 @@ public static final String TAG="TestActivity";
 
         TextView viewById = findViewById(R.id.tv_test);
         Log.d(TAG, "onCreate: tv_test="+viewById+"  id="+R.id.tv_test);
-        viewById.setText("及格");
+        viewById.setText("不是鹿，是马");
         findViewById(R.id.iv_icon2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(TestActivity.this, "厉不厉害你鸡哥",Toast.LENGTH_LONG).show();
+                Toast.makeText(TestActivity.this, "冲冲冲",Toast.LENGTH_LONG).show();
             }
         });
 
