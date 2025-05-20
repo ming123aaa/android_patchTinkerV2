@@ -67,7 +67,7 @@ PatchTinker.getInstance().getPatchInfo()
 
 <application android:name="com.ohuang.patchtinker.PatchApplication">
     <meta-data android:name="Application_Name" android:value="com.ohuang.hotupdate.TestApp" />
-    <meta-data android:name="PatchTinker_WhiteProcess" android:value=":phoenix" />
+    <meta-data android:name="PatchTinker_Version" android:value="1" />
 </application>
 ```
 
@@ -152,8 +152,7 @@ PatchTinker.getInstance().loadPatchApk(StartActivity.this, patch_path);
 ### 进程白名单
 
 进程白名单：
-<meta-data
-android:name="PatchTinker_WhiteProcess"/>  进程白名单,白名单的进程不会自动执行热更 (多个进程用","隔开 以":"代表子进程 )
+<meta-data android:name="PatchTinker_WhiteProcess"/>  进程白名单,白名单的进程不会自动执行热更 (多个进程用","隔开 以":"开头代表子进程 )
 
 ```xml
 
