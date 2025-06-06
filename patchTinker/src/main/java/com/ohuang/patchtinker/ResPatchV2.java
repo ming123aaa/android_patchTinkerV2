@@ -3,12 +3,9 @@ package com.ohuang.patchtinker;
 import android.content.Context;
 import android.content.res.AssetManager;
 
-import com.ohuang.patchtinker.tinker.TinkerResourcePatcher;
-
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class ResPatch {
+public class ResPatchV2 {
 
 
     static boolean getResPatch(Context context, String str_ori) {

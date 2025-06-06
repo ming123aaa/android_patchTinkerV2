@@ -3,30 +3,37 @@ package com.ohuang.patchtinker;
 import android.content.Context;
 import android.util.Log;
 
+
 import com.ohuang.patchtinker.util.CopyFileUtil;
 import com.ohuang.patchtinker.util.ZipUtil;
 
 import java.io.File;
 
-public class DexApk {
-    public static final String TAG = "DexApk";
+public class ResApkV2 {
+    public static final String TAG = "ResApk";
 
-    public static void toDexApk(Context context, String patchApk, String dexApk, String tempPath, boolean isProtected) {
+    public static void toDexResApk(Context context, String patchApk, String dexApk, String tempPath, boolean isProtected) {
         long time = System.currentTimeMillis();
         String baseApk = context.getApplicationInfo().sourceDir;
-        if (isProtected){ //加固过的包直接复制
-            CopyFileUtil.copyFile(patchApk,dexApk);
-        }else {
+        if (isProtected) {
+            mergeDexProtectedApk(patchApk, dexApk, tempPath);
+        } else {
             mergeDexApk(baseApk, patchApk, dexApk, tempPath);
         }
-        Log.d(TAG, "toDexApk: 耗时"+(System.currentTimeMillis()-time)+"ms");
+        Log.d(TAG, "toDexResApk: baseApkPath=" + baseApk + "  patchPath=" + patchApk);
+        Log.d(TAG, "toDexResApk: 耗时" + (System.currentTimeMillis() - time) + "ms");
+
+    }
+
+    private static void mergeDexProtectedApk(String patchPath, String outDexPath, String tmpPath) {
+        CopyFileUtil.copyFile(patchPath,outDexPath);
     }
 
     private static void mergeDexApk(String apkPath, String patchPath, String outDexPath, String tmpPath) {
         ZipUtil.upZipByZipIntercept(apkPath, tmpPath + "/baseDex", new ZipUtil.ZipIntercept() {
             @Override
             public boolean isCopy(String fileName) {
-                if (fileName.startsWith("classes") && fileName.endsWith(".dex")) {
+                if (fileName.startsWith("classes") && fileName.endsWith(".dex")) { //只解压classes.dex
                     return true;
                 }
                 return false;
@@ -35,10 +42,10 @@ public class DexApk {
         ZipUtil.upZipByZipIntercept(patchPath, tmpPath + "/patchDex", new ZipUtil.ZipIntercept() {
             @Override
             public boolean isCopy(String fileName) {
-                if (fileName.startsWith("classes") && fileName.endsWith(".dex")) {
-                    return true;
+                if (fileName.startsWith("lib/")) {  //lib文件不处理
+                    return false;
                 }
-                return false;
+                return true;
             }
         });
         File patchDex = new File(tmpPath + "/patchDex");
@@ -56,7 +63,16 @@ public class DexApk {
                 classesNum[0]++;
             }
         });
-        ZipUtil.toZip(outDexPath, tmpPath + "/patchDex", true);
+
+        ZipUtil.toZip(outDexPath, tmpPath + "/patchDex", true, new ZipUtil.ZipCompressIntercept() {
+            @Override
+            public boolean canCompress(String name) {
+                if (name.startsWith("res/raw/") || name.startsWith("assets/")) { //不需要压缩的文件
+                    return false;
+                }
+                return true;
+            }
+        });
 
     }
 
@@ -94,4 +110,6 @@ public class DexApk {
     private interface CallBack {
         void call(File file);
     }
+
+
 }
